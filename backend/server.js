@@ -6,11 +6,8 @@ app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
-    user: 'postgres', 
-    host: 'localhost', 
-    database: 'agri_tchad_db',
-    password: 'destin', 
-    port: 5432,
+    connectionString: process.env.DATABASE_URL, // Render utilisera automatiquement le lien collé plus haut
+    ssl: { rejectUnauthorized: false } // Obligatoire pour les connexions sécurisées en ligne
 });
 
 // 1. Liste des agriculteurs

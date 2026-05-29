@@ -46,7 +46,7 @@ function App() {
     const prix = prompt("Prix au KG ?");
     const qte = prompt("Quantité (KG) ?");
     if(prix && qte) {
-      await axios.post('http://localhost:5000/api/marketplace', { id, produit: culture, prix, qte });
+      await axios.post('https://agri-tchad-backend.onrender.com/api/marketplace', { id, produit: culture, prix, qte });
       alert("Produit ajouté au marché !"); fetchData();
     }
   };

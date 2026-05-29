@@ -81,6 +81,10 @@ app.post('/api/update-production', async (req, res) => {
     res.json({success: true});
 });
 
+app.get('/', (req, res) => {
+    res.send("🚀 Serveur de la Plateforme Agri-Intelligente Tchad est opérationnel !");
+});
+
 app.get('/api/stats-graphique', async (req, res) => {
     const r = await pool.query('SELECT etape_actuelle as label, COUNT(*)::int as value FROM productions GROUP BY etape_actuelle');
     res.json(r.rows);

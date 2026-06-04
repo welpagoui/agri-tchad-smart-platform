@@ -17,6 +17,9 @@ function App() {
   const [formData, setFormData] = useState({ nom: '', zone: '', culture: 'Maïs', telephone: '' });
   const [autreCulture, setAutreCulture] = useState('');
 
+  // URL DE TON BACKEND SUR RENDER
+  const API_URL = "https://agri-tchad-backend.onrender.com/api";
+
   const translations = {
     fr: { title: "PLATEFORME AGRICOLE INTELLIGENTE DU TCHAD", tab1: "GESTION & FINANCE", tab2: "MARCHÉ AGRICOLE" },
     ar: { title: "المنصة الزراعية الذكية في تشاد", tab1: "الإدارة والتمويل", tab2: "السوق الزراعي" }
@@ -25,37 +28,47 @@ function App() {
   useEffect(() => { fetchData(); }, [tab]);
 
   const fetchData = async () => {
-    const resF = await axios.get('http://localhost:5000/api/agriculteurs');
-    const resS = await axios.get('http://localhost:5000/api/stats-globales');
-    const resG = await axios.get('http://localhost:5000/api/stats-graphique');
-    const resM = await axios.get('http://localhost:5000/api/marketplace');
-    setFarmers(resF.data); setStats(resS.data); setMarket(resM.data);
-    setGraphData({
-      labels: resG.data.map(d => d.label),
-      datasets: [{ data: resG.data.map(d => d.value), backgroundColor: ['#2e7d32', '#ed1c24', '#0054a6', '#ffc107'] }]
-    });
+    try {
+        const resF = await axios.get(`${API_URL}/agriculteurs`);
+        const resS = await axios.get(`${API_URL}/stats-globales`);
+        const resG = await axios.get(`${API_URL}/stats-graphique`);
+        const resM = await axios.get(`${API_URL}/marketplace`);
+        
+        setFarmers(resF.data); 
+        setStats(resS.data); 
+        setMarket(resM.data);
+        
+        setGraphData({
+          labels: resG.data.map(d => d.label),
+          datasets: [{ data: resG.data.map(d => d.value), backgroundColor: ['#2e7d32', '#ed1c24', '#0054a6', '#ffc107'] }]
+        });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des données", error);
+    }
   };
 
   const effectuerPaiement = async (id, op, montant) => {
-    await axios.post('http://localhost:5000/api/finances', { agriculteur_id: id, type: 'Paiement', montant, operateur: op });
+    await axios.post(`${API_URL}/finances`, { agriculteur_id: id, type: 'Paiement', montant, operateur: op });
     alert("Succès : " + op + " de " + montant + " FCFA enregistré !");
-    fetchData(); // Rafraîchit le compteur FCFA
+    fetchData(); 
   };
 
   const mettreEnVente = async (id, culture) => {
     const prix = prompt("Prix au KG ?");
     const qte = prompt("Quantité (KG) ?");
     if(prix && qte) {
-      await axios.post('https://agri-tchad-backend.onrender.com/api/marketplace', { id, produit: culture, prix, qte });
-      alert("Produit ajouté au marché !"); fetchData();
+      await axios.post(`${API_URL}/marketplace`, { agriculteur_id: id, produit: culture, prix, quantite: qte });
+      alert("Produit ajouté au marché !"); 
+      fetchData();
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const cultureFinale = formData.culture === 'Autre' ? autreCulture : formData.culture;
-    await axios.post('http://localhost:5000/api/agriculteurs', { ...formData, culture: cultureFinale });
-    setFormData({ nom: '', zone: '', culture: 'Maïs', telephone: '' }); setAutreCulture('');
+    await axios.post(`${API_URL}/agriculteurs`, { ...formData, culture: cultureFinale });
+    setFormData({ nom: '', zone: '', culture: 'Maïs', telephone: '' }); 
+    setAutreCulture('');
     fetchData();
   };
 
@@ -80,7 +93,9 @@ function App() {
       <div className="dashboard-stats">
         <div className="stat-i">👥 {stats.total_p} Producteurs</div>
         <div className="stat-i">💰 {Number(stats.total_f).toLocaleString()} FCFA</div>
-        <div className="chart-i"><Pie data={graphData} options={{maintainAspectRatio: false}} /></div>
+        <div className="chart-i">
+            {graphData.labels.length > 0 ? <Pie data={graphData} options={{maintainAspectRatio: false}} /> : <small>Chargement IA...</small>}
+        </div>
       </div>
 
       <main className="main-content">
@@ -102,7 +117,7 @@ function App() {
                 <div key={f.id} className="card">
                   <h3>{f.nom}</h3>
                   <p>📍 GPS: {f.latitude} | 🌾 {f.culture}</p>
-                  <select className="prod-select" value={f.etape} onChange={async (e) => { await axios.post('http://localhost:5000/api/update-production', {id: f.id, etape: e.target.value}); fetchData(); }}>
+                  <select className="prod-select" value={f.etape} onChange={async (e) => { await axios.post(`${API_URL}/update-production`, {id: f.id, etape: e.target.value}); fetchData(); }}>
                     <option value="1. Préparation">1. Préparation</option><option value="2. Semis">2. Semis</option><option value="6. Récolte">6. Récolte</option>
                   </select>
                   <div className="btns">

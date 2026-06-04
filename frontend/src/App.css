@@ -78,3 +78,29 @@
     margin-bottom: 10px;
     background: #f1f8e9;
 }
+.grain-select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    color: #1b5e20;
+}
+
+.autre-input {
+    border: 2px solid #ff9800 !important;
+    background: #fff3e0 !important;
+}
+
+.btn-vendre-main {
+    width: 100%;
+    margin-top: 10px;
+    background: #558b2f;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}

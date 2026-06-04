@@ -28,3 +28,53 @@
 .market-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .price { font-size: 1.4rem; color: #1b5e20; font-weight: bold; }
 .btn-whatsapp { background: #25d366; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+/* ... garde ton début de CSS ... */
+
+.gps-row a {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-bottom: 10px;
+    background: #e8f0fe;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.gps-row a:hover { background: #d2e3fc; }
+
+.id-badge {
+    font-size: 0.7rem;
+    background: #333;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.btns-finance {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-t {
+    grid-column: span 2; /* Le bouton tontine prend toute la largeur */
+    background: #ff9800 !important;
+    color: white !important;
+    font-weight: bold;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.prod-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 2px solid #2e7d32;
+    margin-bottom: 10px;
+    background: #f1f8e9;
+}

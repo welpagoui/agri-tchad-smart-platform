@@ -9,61 +9,48 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// AUTHENTIFICATION (Module 3.10)
+// AUTHENTIFICATION
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username, password]);
     if (r.rows.length > 0) res.json({ success: true, user: r.rows[0] });
-    else res.status(401).json({ message: "Erreur" });
+    else res.status(401).json({ message: "Invalide" });
 });
 
-// AGRICULTEURS (Module 3.1)
+// INSCRIPTION (Corrigée pour correspondre au Frontend)
+app.post('/api/agriculteurs', async (req, res) => {
+    const { nom, zone, telephone, culture, surface_ha } = req.body;
+    const scoreIA = Math.floor(Math.random() * 100); 
+    try {
+        const r = await pool.query(
+            'INSERT INTO agriculteurs (nom, zone, telephone, culture, surface_ha, solvabilite) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+            [nom, zone, telephone, culture, surface_ha, scoreIA]
+        );
+        res.json(r.rows[0]);
+    } catch (e) { res.status(500).send(e.message); }
+});
+
 app.get('/api/agriculteurs', async (req, res) => {
     const r = await pool.query("SELECT * FROM agriculteurs ORDER BY id DESC");
     res.json(r.rows);
 });
 
-app.post('/api/agriculteurs', async (req, res) => {
-    const { nom, zone, telephone, culture, surface } = req.body;
-    const scoreIA = Math.floor(Math.random() * 100); 
-    const r = await pool.query(
-        'INSERT INTO agriculteurs (nom, zone, telephone, culture, surface_ha, solvabilite) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-        [nom, zone, telephone, culture, surface || 1, scoreIA]
-    );
-    res.json(r.rows[0]);
-});
-
-// PRODUCTION (Module 3.5 - Trait Vert)
 app.post('/api/update-etape', async (req, res) => {
     const { id, etape } = req.body;
     await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
     res.json({success: true});
 });
 
-// STATISTIQUES (Module 3.9)
-app.get('/api/stats', async (req, res) => {
-    const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
-    const fin = await pool.query('SELECT SUM(montant) FROM finances');
-    const graph = await pool.query('SELECT etape_actuelle as label, COUNT(*)::int as value FROM agriculteurs GROUP BY etape_actuelle');
-    res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0, graph: graph.rows });
-});
-
-// FINANCES & MARCHÉ
-app.post('/api/finances', async (req, res) => {
-    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_t) VALUES ($1,$2,$3)', [req.body.id, req.body.montant, req.body.type]);
+app.post('/api/marketplace', async (req, res) => {
+    const { agriculteur_id, produit, prix, quantite } = req.body;
+    await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite) VALUES ($1,$2,$3,$4)', [agriculteur_id, produit, prix, quantite]);
     res.json({success: true});
 });
 
 app.get('/api/marketplace', async (req, res) => {
-    const r = await pool.query('SELECT p.*, a.nom as vendeur, a.telephone FROM produits p JOIN agriculteurs a ON p.agriculteur_id = a.id ORDER BY p.id DESC');
+    const r = await pool.query('SELECT p.*, a.nom as vendeur FROM produits p JOIN agriculteurs a ON p.agriculteur_id = a.id ORDER BY p.id DESC');
     res.json(r.rows);
 });
 
-app.post('/api/marketplace', async (req, res) => {
-    const { id, produit, prix, qte } = req.body;
-    await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite) VALUES ($1,$2,$3,$4)', [id, produit, prix, qte]);
-    res.json({success: true});
-});
-
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("🚀 Serveur Master AGRI-TCHAD OK"));
+app.listen(PORT, () => console.log("🚀 AGRI-TCHAD SERVER OK"));

@@ -1,32 +1,27 @@
-.app-container { font-family: sans-serif; background: #f0f4f0; min-height: 100vh; margin: 0; }
-.navbar { background: #1b5e20; color: white; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-.nav-tabs { margin-top: 15px; }
-.nav-tabs button { background: none; border: 1px solid white; color: white; padding: 8px 20px; margin: 0 5px; cursor: pointer; border-radius: 20px; }
-.nav-tabs button.active { background: white; color: #1b5e20; font-weight: bold; }
+.app-container { font-family: 'Segoe UI', sans-serif; background: #f4f7f4; min-height: 100vh; }
+.main-header { background: #1b5e20; color: white; padding: 20px; text-align: center; }
+.header-stats { display: flex; justify-content: center; gap: 40px; align-items: center; margin-top: 20px; }
+.stat-card { background: white; color: #1b5e20; padding: 15px 25px; border-radius: 12px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.chart-min { width: 100px; height: 100px; background: white; padding: 10px; border-radius: 50%; }
 
-.dashboard-stats { display: flex; justify-content: center; align-items: center; gap: 60px; background: white; padding: 20px; border-bottom: 2px solid #ddd; }
-.stat-info { font-size: 1.2rem; color: #1b5e20; font-weight: bold; }
-.chart-box { width: 300px; height: 130px; }
+.registration form { display: flex; gap: 10px; max-width: 1000px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.registration input, .registration select { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+.registration button { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-.main-content { max-width: 1100px; margin: auto; padding: 20px; }
-.agri-form { display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.agri-form input, .agri-form select { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-width: 150px; }
-.agri-form button { background: #2e7d32; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.farmers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; padding: 20px; }
+.farmer-pro-card { background: white; border-radius: 15px; padding: 20px; border-top: 8px solid #1b5e20; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.card-top { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.id-badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-.card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid #2e7d32; }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+/* BARRE DE PROGRESSION (LE TRAIT VERT) */
+.progress-section { margin: 20px 0; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
+.progress-bar-bg { background: #e0e0e0; height: 12px; border-radius: 6px; margin: 10px 0; overflow: hidden; }
+.progress-bar-fill { background: #2e7d32; height: 100%; transition: width 0.8s ease-in-out; }
+.progress-section select { width: 100%; padding: 8px; border: 1px solid #1b5e20; border-radius: 5px; }
 
-.gps-btn { background: #e8f0fe; color: #1a73e8; border: none; padding: 8px; border-radius: 5px; width: 100%; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
-.prod-select { width: 100%; padding: 8px; border-radius: 5px; border: 2px solid #2e7d32; margin-bottom: 15px; background: #f1f8e9; }
-
-.btns-row { display: flex; gap: 10px; margin-bottom: 8px; }
-.btn-red { background: #ed1c24; color: white; flex: 1; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.btn-blue { background: #0054a6; color: white; flex: 1; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.btn-orange { background: #ff9800; color: white; width: 100%; border: none; padding: 10px; border-radius: 5px; margin-bottom: 8px; cursor: pointer; font-weight: bold; }
-.btn-green { background: #558b2f; color: white; width: 100%; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-.m-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.price { font-size: 1.5rem; color: #1b5e20; font-weight: bold; margin: 10px 0; }
-.btn-wa { background: #25d366; color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; }
+.module-gps button { width: 100%; background: #e8f0fe; color: #1a73e8; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
+.btns-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.airtel { background: #ed1c24; color: white; flex: 1; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.moov { background: #0054a6; color: white; flex: 1; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.tontine { width: 100%; background: #ff9800; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
+.market { width: 100%; background: #558b2f; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }

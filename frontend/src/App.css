@@ -1,39 +1,34 @@
-/* CONNEXION */
-.login-screen { background: #1b5e20; height: 100vh; display: flex; justify-content: center; align-items: center; }
-.login-card { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-.logo { font-size: 50px; margin-bottom: 10px; }
-.login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-.login-card button { width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.app-container { font-family: sans-serif; background: #f0f4f0; min-height: 100vh; }
+.navbar { background: #1b5e20; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+.back-btn { background: #c62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
 
-/* NAVBAR & RETOUR */
-.navbar { background: #1b5e20; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-.back-btn { background: #c62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.tabs button { background: none; border: 1px solid white; color: white; padding: 8px 20px; margin: 0 5px; cursor: pointer; border-radius: 20px; }
-.tabs button.active { background: white; color: #1b5e20; font-weight: bold; }
+.dashboard-stats { display: flex; justify-content: center; align-items: center; gap: 50px; background: white; padding: 20px; border-bottom: 2px solid #ddd; }
+.stat-item { font-weight: bold; color: #1b5e20; font-size: 1.1rem; text-align: center; }
+.chart-item { width: 100px; height: 100px; }
 
-/* ZONE RECHERCHE */
-.search-bar { max-width: 800px; margin: 20px auto; padding: 0 20px; }
-.search-bar input { width: 100%; padding: 15px; border-radius: 30px; border: 2px solid #1b5e20; font-size: 1rem; outline: none; }
+.tabs button { background: #eee; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; margin: 0 5px; }
+.tabs button.active { background: #1b5e20; color: white; font-weight: bold; }
+
+.search-zone { max-width: 1000px; margin: 20px auto; display: flex; gap: 10px; padding: 0 20px; }
+.search-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 2px solid #1b5e20; outline: none; }
+.add-btn { background: #2e7d32; color: white; border: none; padding: 0 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; padding: 20px; }
+.pro-card { background: white; border-radius: 15px; padding: 20px; border-top: 10px solid #1b5e20; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
 /* LE TRAIT VERT */
-.trait-bg { background: #eee; height: 14px; border-radius: 7px; margin: 10px 0; overflow: hidden; border: 1px solid #ccc; }
-.trait-vert { background: #2e7d32; height: 100%; transition: 0.8s ease-in-out; } /* LA FORCE DU TRAIT VERT */
+.bar-bg { background: #eee; height: 14px; border-radius: 7px; margin: 10px 0; overflow: hidden; border: 1px solid #ccc; }
+.bar-fill { background: #2e7d32; height: 100%; transition: 0.8s ease-in-out; }
 
-/* CARTES */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; padding: 20px; }
-.farmer-card { background: white; border-radius: 15px; padding: 20px; border: 1px solid #1b5e20; border-top: 10px solid #1b5e20; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-.card-top { display: flex; justify-content: space-between; align-items: center; }
-.badge { background: #333; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; }
-.progress-box { background: #f9f9f9; padding: 12px; border-radius: 10px; margin: 15px 0; }
-.progress-box select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #1b5e20; }
+.gps-btn { width: 100%; background: #e8f0fe; color: #1a73e8; border: none; padding: 8px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
+.ia-badge { text-align: center; color: #1b5e20; font-weight: bold; background: #f1f8e9; padding: 5px; border-radius: 5px; margin-bottom: 10px; }
 
-.ia-score { color: #2e7d32; font-weight: bold; margin-bottom: 15px; text-align: center; }
-.b-vendre { width: 100%; background: #558b2f; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.finance-btns { display: flex; flex-wrap: wrap; gap: 5px; }
+.finance-btns button { flex: 1; padding: 10px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; font-size: 0.7rem; }
+.b-airtel { background: #ed1c24; }
+.b-moov { background: #0054a6; }
+.b-vendre { background: #558b2f; width: 100% !important; flex: none !important; }
 
-/* BOUTON AJOUTER FLOATING */
-.add-fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; background: #1b5e20; color: white; font-size: 35px; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
-/* MARKET */
-.market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-.market-card { background: white; padding: 20px; border-radius: 12px; text-align: center; border-bottom: 5px solid #1b5e20; }
-.price { font-size: 1.5rem; color: #1b5e20; font-weight: bold; }
+.market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.m-card { background: white; padding: 20px; border-radius: 12px; text-align: center; border-bottom: 5px solid #1b5e20; }
+.wa-btn { background: #25d366; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }

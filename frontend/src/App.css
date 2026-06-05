@@ -1,15 +1,39 @@
-/* LE TRAIT VERT */
-.bar-bg { background: #e0e0e0; height: 12px; border-radius: 6px; margin: 10px 0; overflow: hidden; border: 1px solid #ccc; }
-.bar-fill { background: #2e7d32; height: 100%; transition: 0.5s; width: 0%; } /* C'est ça qui fait le trait vert */
+.login-page { background: #1b5e20; height: 100vh; display: flex; justify-content: center; align-items: center; font-family: sans-serif; }
+.login-card { background: white; padding: 40px; border-radius: 15px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+.login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+.login-card button { width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-.pro-card { background: white; border-radius: 15px; padding: 20px; border: 2px solid #1b5e20; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.id-tag { font-size: 0.7rem; background: #333; color: white; padding: 2px 5px; border-radius: 4px; float: right; }
+.app-container { font-family: sans-serif; background: #f0f4f0; min-height: 100vh; }
+.navbar { background: #1b5e20; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+.dashboard-stats { display: flex; justify-content: center; align-items: center; gap: 40px; background: white; padding: 20px; border-bottom: 2px solid #ddd; }
+.stat-v { font-weight: bold; color: #1b5e20; font-size: 1.1rem; }
+.chart-v { width: 90px; height: 90px; }
+
+.tabs-main button { background: #eee; border: none; padding: 10px 20px; cursor: pointer; margin: 0 5px; border-radius: 5px; }
+.tabs-main button.active { background: #1b5e20; color: white; font-weight: bold; }
+
+.main { max-width: 1200px; margin: auto; padding: 20px; }
+.form-in { display: flex; gap: 10px; background: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.form-in input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+.form-in button { background: #1b5e20; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; }
+.pro-card { background: white; border-radius: 15px; padding: 20px; border-top: 6px solid #1b5e20; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+
+.progress-zone { margin: 15px 0; background: #f9f9f9; padding: 10px; border-radius: 10px; }
+.bar-bg { background: #eee; height: 12px; border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
+.bar-fill { background: #2e7d32; height: 100%; transition: 0.8s; }
+.progress-zone select { width: 100%; padding: 8px; border: 1px solid #1b5e20; border-radius: 5px; }
+
 .gps-btn { width: 100%; background: #e8f0fe; color: #1a73e8; border: none; padding: 8px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
 
-.btns-fin { display: flex; gap: 5px; margin-bottom: 10px; }
-.btns-fin button { flex: 1; padding: 10px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; }
+.finance-btns { display: flex; flex-wrap: wrap; gap: 5px; }
+.finance-btns button { flex: 1; padding: 10px; border: none; border-radius: 5px; color: white; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
 .b-airtel { background: #ed1c24; }
 .b-moov { background: #0054a6; }
-.b-vendre { width: 100%; background: #558b2f; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.b-tontine { background: #ff9800; width: 100% !important; flex: none !important; }
+.b-vendre { background: #558b2f; width: 100% !important; flex: none !important; margin-top: 5px; }
 
-.m-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #2e7d32; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.m-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #1b5e20; display: flex; justify-content: space-between; align-items: center; }
+.btn-wa { background: #25d366; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }

@@ -10,6 +10,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+// INITIALISATION AUTOMATIQUE
 const initDB = async () => {
     try {
         await pool.query(`
@@ -19,7 +20,6 @@ const initDB = async () => {
             CREATE TABLE IF NOT EXISTS finances (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, montant DECIMAL, type_t VARCHAR(50), operateur VARCHAR(20));
         `);
         await pool.query("INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES ('admin', 'admin123', 'ADMIN'), ('banque', 'bank123', 'BANQUE'), ('ong', 'ong123', 'ONG') ON CONFLICT DO NOTHING");
-        console.log("✅ Base de données Agri-Tchad prête");
     } catch (err) { console.log(err.message); }
 };
 initDB();
@@ -32,8 +32,15 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.get('/api/agriculteurs', async (req, res) => {
-    const r = await pool.query("SELECT a.*, COALESCE(p.nom_produit, '') as en_vente FROM agriculteurs a LEFT JOIN produits p ON a.id = p.agriculteur_id ORDER BY a.id DESC");
+    const r = await pool.query("SELECT * FROM agriculteurs ORDER BY id DESC");
     res.json(r.rows);
+});
+
+app.post('/api/update-etape', async (req, res) => {
+    const { id, etape } = req.body;
+    // Mise à jour réelle dans la base de données
+    await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
+    res.json({success: true});
 });
 
 app.post('/api/agriculteurs', async (req, res) => {
@@ -48,9 +55,8 @@ app.post('/api/finances', async (req, res) => {
     res.json({success: true});
 });
 
-// --- CORRECTION DU MARCHÉ ICI ---
 app.post('/api/marketplace', async (req, res) => {
-    const { id, produit, prix, quantite } = req.body; // Changé agriculteur_id en id pour correspondre au mobile
+    const { id, produit, prix, quantite } = req.body;
     await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite_stock) VALUES ($1,$2,$3,$4)', [id, produit, prix, quantite]);
     res.json({success: true});
 });
@@ -60,10 +66,10 @@ app.get('/api/marketplace', async (req, res) => {
     res.json(r.rows);
 });
 
-app.post('/api/update-etape', async (req, res) => {
-    const { id, etape } = req.body;
-    await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
-    res.json({success: true});
+app.get('/api/stats-globales', async (req, res) => {
+    const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
+    const fin = await pool.query('SELECT SUM(montant) FROM finances');
+    res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0 });
 });
 
 const PORT = process.env.PORT || 5000;

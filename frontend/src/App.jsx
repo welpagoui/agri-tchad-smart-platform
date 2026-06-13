@@ -8,51 +8,42 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 function App() {
   const [user, setUser] = useState(null);
-  const [tab, setTab] = useState('gestion');
   const [farmers, setFarmers] = useState([]);
-  const [market, setMarket] = useState([]);
-  const [stats, setStats] = useState({ total_p: 0, graph: [] });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loginData, setLoginData] = useState({ user: '', pass: '' });
-  const [form, setForm] = useState({ nom: '', zone: '', telephone: '', culture: 'Maïs', surface_ha: 1 });
+  const [stats, setStats] = useState({ total_p: 0, total_f: 0, graph: [] });
+  const [loginData, setLoginData] = useState({ user: 'admin', pass: 'admin123' });
+  const [form, setForm] = useState({ nom: '', zone: '', telephone: '', culture: 'Maïs' });
 
   const API = "https://agri-tchad-backend.onrender.com/api";
   const etapes = ["Préparation des sols", "Semis", "Fertilisation", "Irrigation", "Traitements", "Récolte", "Stockage", "Transformation", "Vente", "Livraison"];
 
-  useEffect(() => { if(user) load(); }, [user, tab]);
+  useEffect(() => { if(user) load(); }, [user]);
 
   const load = async () => {
-    try {
-        const r1 = await axios.get(`${API}/agriculteurs`);
-        const r2 = await axios.get(`${API}/stats`);
-        const r3 = await axios.get(`${API}/marketplace`);
-        setFarmers(r1.data);
-        setStats(r2.data);
-        setMarket(r3.data);
-    } catch (e) { console.error(e); }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${API}/login`, { username: loginData.user, password: loginData.pass });
-      setUser(res.data.user);
-    } catch (err) { alert("Identifiants incorrects (admin / admin123)"); }
+    const r1 = await axios.get(`${API}/agriculteurs`);
+    const r2 = await axios.get(`${API}/stats`);
+    setFarmers(r1.data);
+    setStats(r2.data);
   };
 
   const chartData = {
-    labels: stats.graph?.map(g => etapes[g.label-1] || "Autre") || [],
-    datasets: [{ data: stats.graph?.map(g => g.value) || [], backgroundColor: ['#2e7d32','#ed1c24','#0054a6','#ff9800','#9c27b0'] }]
+    labels: stats.graph.map(g => etapes[g.label-1] || "Autre"),
+    datasets: [{ data: stats.graph.map(g => g.value), backgroundColor: ['#2e7d32','#ed1c24','#0054a6','#ff9800','#9c27b0'] }]
+  };
+
+  const handlePaiement = async (id, montant, type) => {
+    await axios.post(`${API}/finances`, { agriculteur_id: id, montant, type });
+    alert("Transaction réussie !");
+    load();
   };
 
   if (!user) {
     return (
       <div className="login-page">
-        <form className="login-card" onSubmit={handleLogin}>
-          <h1>🚜 AGRI-TCHAD</h1>
-          <p>Authentification sécurisée (Module 3.10)</p>
-          <input placeholder="Utilisateur" onChange={e=>setLoginData({...loginData, user: e.target.value})} required />
-          <input placeholder="Mot de passe" type="password" onChange={e=>setLoginData({...loginData, pass: e.target.value})} required />
+        <form className="login-card" onSubmit={async (e)=>{e.preventDefault(); try{const r=await axios.post(`${API}/login`, {username:loginData.user, password:loginData.pass}); setUser(r.data.user);}catch(e){alert("Erreur");}}}>
+          <div className="logo">🚜</div>
+          <h2>AGRI-TCHAD</h2>
+          <input value={loginData.user} onChange={e=>setLoginData({...loginData, user:e.target.value})} placeholder="Utilisateur" />
+          <input value={loginData.pass} type="password" onChange={e=>setLoginData({...loginData, pass:e.target.value})} placeholder="Mot de passe" />
           <button type="submit">SE CONNECTER</button>
         </form>
       </div>
@@ -62,79 +53,54 @@ function App() {
   return (
     <div className="app-container">
       <nav className="navbar">
-        <button onClick={() => setUser(null)} className="back-btn">⬅ RETOUR</button>
-        <h1>PLATFORME AGRI-TCHAD</h1>
-        <div className="user-badge">👤 {user.nom_utilisateur} ({user.role})</div>
+        <h1>PLATEFORME AGRICOLE INTELLIGENTE DU TCHAD</h1>
+        <button onClick={() => setUser(null)} className="logout">DÉCONNEXION</button>
       </nav>
 
-      <div className="dashboard-stats">
-        <div className="stat-item">👥 {stats.total_p} <br/><span>Producteurs</span></div>
-        <div className="chart-item"><Pie data={chartData} options={{maintainAspectRatio:false}} /></div>
-        <div className="tabs">
-          <button onClick={() => setTab('gestion')} className={tab === 'gestion' ? 'active' : ''}>GESTION</button>
-          <button onClick={() => setTab('market')} className={tab === 'market' ? 'active' : ''}>MARCHÉ</button>
+      {/* DASHBOARD AVEC CERCLE (Exactement comme l'image) */}
+      <div className="dashboard-top">
+        <div className="stat-v">👥 {stats.total_p} Producteurs</div>
+        <div className="stat-v">💰 {Number(stats.total_f).toLocaleString()} FCFA en circulation</div>
+        <div className="chart-v">
+            <Pie data={chartData} options={{maintainAspectRatio:false}} />
         </div>
       </div>
 
       <main className="main">
-        {tab === 'gestion' ? (
-          <>
-            <div className="search-zone">
-                <input type="text" placeholder="🔎 Rechercher par nom ou zone (Pala, Bongor...)" onChange={(e)=>setSearchTerm(e.target.value)} />
-                {(user.role === 'ADMIN' || user.role === 'COOPERATIVE') && (
-                    <button className="add-btn" onClick={()=>{
-                        const n = prompt("Nom complet?"); 
-                        const z = prompt("Zone?"); 
-                        if(n && z) axios.post(`${API}/agriculteurs`, {...form, nom:n, zone:z}).then(()=>load());
-                    }}>+ S'INSCRIRE</button>
-                )}
-            </div>
+        <form className="agri-form" onSubmit={async (e)=>{e.preventDefault(); await axios.post(`${API}/agriculteurs`, form); load();}}>
+          <input placeholder="Nom" onChange={e=>setForm({...form, nom:e.target.value})} required />
+          <input placeholder="Zone" onChange={e=>setForm({...form, zone:e.target.value})} required />
+          <input placeholder="Téléphone" onChange={e=>setForm({...form, telephone:e.target.value})} required />
+          <select onChange={e=>setForm({...form, culture:e.target.value})}>
+            <option>Mil</option><option>Maïs</option><option>Sésame</option><option>Arachide</option>
+          </select>
+          <button type="submit">S'INSCRIRE</button>
+        </form>
 
-            <div className="grid">
-              {farmers.filter(f => f.nom.toLowerCase().includes(searchTerm.toLowerCase()) || f.zone.toLowerCase().includes(searchTerm.toLowerCase())).map(f => (
-                <div key={f.id} className="pro-card">
-                  <div className="card-top"><h3>{f.nom.toUpperCase()}</h3> <span className="id-tag">#TD-{f.id}</span></div>
-                  <button className="gps-btn" onClick={()=>window.open(`https://maps.google.com/?q=${f.latitude},${f.longitude}`)}>📍 LOCALISER GPS</button>
-                  <p>📍 {f.zone} | 🌾 {f.culture}</p>
-                  
-                  <div className="progress-section">
-                    <p>Évolution Production (Module 3.5)</p>
-                    <div className="bar-bg"><div className="bar-fill" style={{width: `${f.etape_actuelle * 10}%`}}></div></div>
-                    {(user.role === 'ADMIN' || user.role === 'COOPERATIVE') && (
-                        <select value={f.etape_actuelle} onChange={async (e)=>{await axios.post(`${API}/update-etape`, {id: f.id, etape: e.target.value}); load();}}>
-                            {etapes.map((et, i) => <option key={i} value={i+1}>{i+1}. {et}</option>)}
-                        </select>
-                    )}
-                  </div>
-
-                  <div className="ia-badge">IA Scoring : <strong>{f.solvabilite}%</strong></div>
-
-                  {(user.role === 'ADMIN' || user.role === 'BANQUE') && (
-                    <div className="finance-btns">
-                        <button className="b-airtel">Airtel</button>
-                        <button className="b-moov">Moov</button>
-                        <button className="b-vendre" onClick={async ()=>{
-                            const p=prompt("Prix KG?"); const q=prompt("Quantité?");
-                            if(p&&q){await axios.post(`${API}/marketplace`, {agriculteur_id:f.id, produit:f.culture, prix:p, quantite:q}); load();}
-                        }}>VENDRE RÉCOLTE</button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="market-grid">
-            {market.map(m => (
-              <div key={m.id} className="m-card">
-                <h3>{m.nom_produit}</h3>
-                <p className="price">{m.prix} F/KG</p>
-                <p>Vendeur: {m.vendeur}</p>
-                <button onClick={()=>window.open(`https://wa.me/${m.telephone}`)} className="wa-btn">WhatsApp</button>
+        <div className="grid">
+          {farmers.map(f => (
+            <div key={f.id} className="card">
+              <div className="card-h"><h3>{f.nom.toUpperCase()}</h3> <span className="badge">#TD-{f.id}</span></div>
+              <button className="gps-btn" onClick={()=>window.open(`https://maps.google.com/?q=${f.latitude},${f.longitude}`)}>📍 Localiser la parcelle (GPS)</button>
+              <p>🌾 {f.culture} | IA: {f.solvabilite}%</p>
+              
+              {/* TRAIT VERT DYNAMIQUE (Module 3.5) */}
+              <div className="progress-box">
+                <div className="trait-bg"><div className="trait-fill" style={{width: `${f.etape_actuelle * 10}%`}}></div></div>
+                <select value={f.etape_actuelle} onChange={async (e)=>{await axios.post(`${API}/update-etape`, {id:f.id, etape:e.target.value}); load();}}>
+                  {etapes.map((et, i) => <option key={i} value={i+1}>{i+1}. {et}</option>)}
+                </select>
               </div>
-            ))}
-          </div>
-        )}
+
+              <div className="btns-fin">
+                <button className="b-airtel" onClick={()=>handlePaiement(f.id, 5000, 'Airtel')}>Airtel 5000</button>
+                <button className="b-moov" onClick={()=>handlePaiement(f.id, 50000, 'Moov')}>Moov 50000</button>
+              </div>
+              <button className="b-tontine" onClick={()=>handlePaiement(f.id, 2000, 'Tontine')}>Tontine 2000</button>
+              <button className="b-vendre">Vendre la récolte</button>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );

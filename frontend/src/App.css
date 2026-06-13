@@ -1,34 +1,29 @@
 .app-container { font-family: sans-serif; background: #f0f4f0; min-height: 100vh; }
-.navbar { background: #1b5e20; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-.back-btn { background: #c62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+.navbar { background: #1b5e20; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+.logout { background: #c62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
 
-.dashboard-stats { display: flex; justify-content: center; align-items: center; gap: 50px; background: white; padding: 20px; border-bottom: 2px solid #ddd; }
-.stat-item { font-weight: bold; color: #1b5e20; font-size: 1.1rem; text-align: center; }
-.chart-item { width: 100px; height: 100px; }
+/* Dashboard Design Cercle */
+.dashboard-top { display: flex; justify-content: center; align-items: center; gap: 50px; background: white; padding: 20px; border-bottom: 2px solid #ddd; }
+.stat-v { font-weight: bold; color: #1b5e20; font-size: 1.2rem; }
+.chart-v { width: 120px; height: 120px; }
 
-.tabs button { background: #eee; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; margin: 0 5px; }
-.tabs button.active { background: #1b5e20; color: white; font-weight: bold; }
+.agri-form { display: flex; gap: 10px; padding: 20px; max-width: 1000px; margin: auto; }
+.agri-form input, .agri-form select { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+.agri-form button { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-.search-zone { max-width: 1000px; margin: 20px auto; display: flex; gap: 10px; padding: 0 20px; }
-.search-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 2px solid #1b5e20; outline: none; }
-.add-btn { background: #2e7d32; color: white; border: none; padding: 0 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px; }
+.card { background: white; border-radius: 15px; padding: 20px; border-top: 8px solid #1b5e20; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.badge { background: #333; color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; padding: 20px; }
-.pro-card { background: white; border-radius: 15px; padding: 20px; border-top: 10px solid #1b5e20; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+/* TRAIT VERT */
+.trait-bg { background: #eee; height: 12px; border-radius: 6px; margin: 10px 0; overflow: hidden; border: 1px solid #ccc; }
+.trait-fill { background: #2e7d32; height: 100%; transition: 0.5s; }
 
-/* LE TRAIT VERT */
-.bar-bg { background: #eee; height: 14px; border-radius: 7px; margin: 10px 0; overflow: hidden; border: 1px solid #ccc; }
-.bar-fill { background: #2e7d32; height: 100%; transition: 0.8s ease-in-out; }
+.gps-btn { width: 100%; background: #e8f0fe; color: #1a73e8; border: none; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
 
-.gps-btn { width: 100%; background: #e8f0fe; color: #1a73e8; border: none; padding: 8px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
-.ia-badge { text-align: center; color: #1b5e20; font-weight: bold; background: #f1f8e9; padding: 5px; border-radius: 5px; margin-bottom: 10px; }
-
-.finance-btns { display: flex; flex-wrap: wrap; gap: 5px; }
-.finance-btns button { flex: 1; padding: 10px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; font-size: 0.7rem; }
+.btns-fin { display: flex; gap: 5px; margin-top: 10px; }
+.btns-fin button { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white !important; font-weight: bold; cursor: pointer; }
 .b-airtel { background: #ed1c24; }
 .b-moov { background: #0054a6; }
-.b-vendre { background: #558b2f; width: 100% !important; flex: none !important; }
-
-.market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-.m-card { background: white; padding: 20px; border-radius: 12px; text-align: center; border-bottom: 5px solid #1b5e20; }
-.wa-btn { background: #25d366; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.b-tontine { width: 100%; background: #ff9800; color: white !important; font-weight: bold; border: none; padding: 12px; border-radius: 8px; margin-top: 5px; cursor: pointer; }
+.b-vendre { width: 100%; background: #558b2f; color: white !important; font-weight: bold; border: none; padding: 12px; border-radius: 8px; margin-top: 5px; cursor: pointer; }

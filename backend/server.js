@@ -9,20 +9,12 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// LOGIN (Module 3.10)
+// LOGIN
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username, password]);
     if (r.rows.length > 0) res.json({ success: true, user: r.rows[0] });
     else res.status(401).json({ message: "Erreur" });
-});
-
-// STATISTIQUES (Solde FCFA et Cercle)
-app.get('/api/stats', async (req, res) => {
-    const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
-    const fin = await pool.query('SELECT SUM(montant) FROM finances');
-    const graph = await pool.query('SELECT etape_actuelle as label, COUNT(*)::int as value FROM agriculteurs GROUP BY etape_actuelle');
-    res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0, graph: graph.rows });
 });
 
 // AGRICULTEURS
@@ -33,26 +25,17 @@ app.get('/api/agriculteurs', async (req, res) => {
 
 app.post('/api/agriculteurs', async (req, res) => {
     const { nom, zone, telephone, culture } = req.body;
-    const scoreIA = 30 + Math.floor(Math.random() * 60);
-    const r = await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite, latitude, longitude) VALUES ($1,$2,$3,$4,$5, 12.1, 15.1) RETURNING *', [nom, zone, telephone, culture, scoreIA]);
+    const r = await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite, latitude, longitude) VALUES ($1,$2,$3,$4, $5, 12.11, 15.02) RETURNING *', [nom, zone, telephone, culture, Math.floor(Math.random()*100)]);
     res.json(r.rows[0]);
 });
 
-// PROGRESSION (TRAIT VERT)
 app.post('/api/update-etape', async (req, res) => {
     const { id, etape } = req.body;
     await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
     res.json({success: true});
 });
 
-// FINANCES (Paiements)
-app.post('/api/finances', async (req, res) => {
-    const { agriculteur_id, montant, type, operateur } = req.body;
-    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_transaction, operateur) VALUES ($1,$2,$3,$4)', [agriculteur_id, montant, type, operateur]);
-    res.json({success: true});
-});
-
-// MARCHÉ (Marketplace)
+// MARCHÉ
 app.get('/api/marketplace', async (req, res) => {
     const r = await pool.query('SELECT p.*, a.nom as vendeur, a.telephone FROM produits p JOIN agriculteurs a ON p.agriculteur_id = a.id ORDER BY p.id DESC');
     res.json(r.rows);
@@ -62,6 +45,11 @@ app.post('/api/marketplace', async (req, res) => {
     const { agriculteur_id, produit, prix, quantite } = req.body;
     await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite) VALUES ($1,$2,$3,$4)', [agriculteur_id, produit, prix, quantite]);
     res.json({success: true});
+});
+
+app.get('/api/stats', async (req, res) => {
+    const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
+    res.json({ total_p: f.rows[0].count });
 });
 
 const PORT = process.env.PORT || 5000;

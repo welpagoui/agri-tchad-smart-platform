@@ -9,7 +9,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// LOGIN AVEC RÔLES
+// LOGIN
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username, password]);
@@ -17,12 +17,19 @@ app.post('/api/login', async (req, res) => {
     else res.status(401).json({ message: "Erreur" });
 });
 
-// STATISTIQUES (Pour le cercle et le total)
+// STATS (POUR LE SOLDE ET LE CERCLE)
 app.get('/api/stats', async (req, res) => {
     const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
     const fin = await pool.query('SELECT SUM(montant) FROM finances');
     const graph = await pool.query('SELECT etape_actuelle as label, COUNT(*)::int as value FROM agriculteurs GROUP BY etape_actuelle');
     res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0, graph: graph.rows });
+});
+
+// ACTIONS FINANCIÈRES (POUR QUE LE SOLDE AUGMENTE)
+app.post('/api/finances', async (req, res) => {
+    const { agriculteur_id, montant, type } = req.body;
+    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_transaction) VALUES ($1, $2, $3)', [agriculteur_id, montant, type]);
+    res.json({ success: true });
 });
 
 app.get('/api/agriculteurs', async (req, res) => {
@@ -32,20 +39,13 @@ app.get('/api/agriculteurs', async (req, res) => {
 
 app.post('/api/agriculteurs', async (req, res) => {
     const { nom, zone, telephone, culture } = req.body;
-    const scoreIA = 30 + Math.floor(Math.random() * 60);
-    await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite) VALUES ($1,$2,$3,$4,$5)', [nom, zone, telephone, culture, scoreIA]);
-    res.json({success: true});
+    const r = await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite, latitude, longitude) VALUES ($1,$2,$3,$4, 50, 12.11, 15.02) RETURNING *', [nom, zone, telephone, culture]);
+    res.json(r.rows[0]);
 });
 
 app.post('/api/update-etape', async (req, res) => {
     const { id, etape } = req.body;
     await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
-    res.json({success: true});
-});
-
-app.post('/api/finances', async (req, res) => {
-    const { agriculteur_id, montant, type } = req.body;
-    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_t) VALUES ($1,$2,$3)', [agriculteur_id, montant, type]);
     res.json({success: true});
 });
 

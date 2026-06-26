@@ -17,12 +17,13 @@ app.post('/api/login', async (req, res) => {
     else res.status(401).json({ message: "Erreur" });
 });
 
-// LISTE ET PROGRESSION
+// LISTE
 app.get('/api/agriculteurs', async (req, res) => {
     const r = await pool.query("SELECT * FROM agriculteurs ORDER BY id DESC");
     res.json(r.rows);
 });
 
+// MISE À JOUR ÉTAPE (Trait vert)
 app.post('/api/update-etape', async (req, res) => {
     const { id, etape } = req.body;
     await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
@@ -32,11 +33,11 @@ app.post('/api/update-etape', async (req, res) => {
 // PAIEMENTS (Module 3.4)
 app.post('/api/finances', async (req, res) => {
     const { agriculteur_id, montant, type } = req.body;
-    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_t) VALUES ($1,$2,$3)', [agriculteur_id, montant, type]);
+    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_transaction) VALUES ($1,$2,$3)', [agriculteur_id, montant, type]);
     res.json({success: true});
 });
 
-// STATISTIQUES (Pour le Cercle et le Compteur FCFA)
+// STATS (Pour le cercle et le total FCFA)
 app.get('/api/stats', async (req, res) => {
     const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
     const fin = await pool.query('SELECT SUM(montant) FROM finances');
@@ -50,9 +51,9 @@ app.get('/api/stats', async (req, res) => {
 
 app.post('/api/agriculteurs', async (req, res) => {
     const { nom, zone, telephone, culture } = req.body;
-    await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite) VALUES ($1,$2,$3,$4,$5)', [nom, zone, telephone, culture, Math.floor(Math.random()*100)]);
+    await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture) VALUES ($1,$2,$3,$4)', [nom, zone, telephone, culture]);
     res.json({success: true});
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log("🚀 AGRI-TCHAD SYSTEM OK"));
+app.listen(PORT, '0.0.0.0', () => console.log("🚀 SYSTÈME AGRI-TCHAD OK"));

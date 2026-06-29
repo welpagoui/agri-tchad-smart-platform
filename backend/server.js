@@ -10,44 +10,35 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// INITIALISATION FORCEE (Module 3.10)
+// INITIALISATION AUTOMATIQUE (Tables + Comptes)
 const initDB = async () => {
     try {
-        // 1. Création des tables
+        // Création des tables selon le PDF
         await pool.query(`
             CREATE TABLE IF NOT EXISTS utilisateurs (id SERIAL PRIMARY KEY, nom_utilisateur VARCHAR(50) UNIQUE, mot_de_passe VARCHAR(100), role VARCHAR(20));
-            CREATE TABLE IF NOT EXISTS agriculteurs (id SERIAL PRIMARY KEY, nom VARCHAR(100), zone VARCHAR(100), telephone VARCHAR(20), culture VARCHAR(50), solvabilite INTEGER, etape_actuelle VARCHAR(100) DEFAULT '1. Préparation', latitude DECIMAL DEFAULT 12.11, longitude DECIMAL DEFAULT 15.02);
-            CREATE TABLE IF NOT EXISTS produits (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, nom_produit VARCHAR(100), prix DECIMAL, quantite_stock INTEGER);
+            CREATE TABLE IF NOT EXISTS agriculteurs (id SERIAL PRIMARY KEY, nom VARCHAR(100), zone VARCHAR(100), telephone VARCHAR(20), culture VARCHAR(100), solvabilite INTEGER, etape_actuelle VARCHAR(100) DEFAULT '1. Préparation', latitude DECIMAL DEFAULT 12.11, longitude DECIMAL DEFAULT 15.02);
+            CREATE TABLE IF NOT EXISTS produits (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, nom_produit VARCHAR(100), prix DECIMAL, quantite INTEGER);
             CREATE TABLE IF NOT EXISTS finances (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, montant DECIMAL, type_t VARCHAR(50), operateur VARCHAR(20));
         `);
-        
-        // 2. Création ou Mise à jour des comptes (Force l'existence)
-        const accounts = [
-            ['admin', 'admin123', 'ADMIN'],
-            ['bank', 'bank123', 'BANQUE'],
-            ['ong', 'ong123', 'ONG']
-        ];
-        for (let acc of accounts) {
-            await pool.query(
-                "INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES ($1, $2, $3) ON CONFLICT (nom_utilisateur) DO UPDATE SET mot_de_passe = $2",
-                acc
-            );
-        }
-        console.log("✅ COMPTES SECURISÉS : admin, bank, ong PRÊTS");
+        // Insertion des comptes obligatoires
+        await pool.query(`
+            INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES 
+            ('admin', 'admin123', 'ADMIN'), 
+            ('bank', 'bank123', 'BANQUE'), 
+            ('ong', 'ong123', 'ONG') 
+            ON CONFLICT (nom_utilisateur) DO NOTHING
+        `);
+        console.log("✅ Base de données et comptes initialisés");
     } catch (err) { console.log("Erreur Init:", err.message); }
 };
 initDB();
 
+// --- ROUTES ---
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    try {
-        const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur = $1 AND mot_de_passe = $2", [username.trim().toLowerCase(), password.trim()]);
-        if (r.rows.length > 0) {
-            res.json({ success: true, user: r.rows[0] });
-        } else {
-            res.status(401).json({ message: "Utilisateur non trouvé" });
-        }
-    } catch (e) { res.status(500).send(e.message); }
+    const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username.toLowerCase(), password]);
+    if (r.rows.length > 0) res.json({ success: true, user: r.rows[0] });
+    else res.status(401).json({ message: "Échec" });
 });
 
 app.get('/api/agriculteurs', async (req, res) => {
@@ -57,19 +48,9 @@ app.get('/api/agriculteurs', async (req, res) => {
 
 app.post('/api/agriculteurs', async (req, res) => {
     const { nom, zone, telephone, culture } = req.body;
-    const r = await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite, latitude, longitude) VALUES ($1,$2,$3,$4, 50, 12.11, 15.02) RETURNING *', [nom, zone, telephone, culture]);
+    const r = await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite, latitude, longitude) VALUES ($1,$2,$3,$4, $5, 12.1, 15.1) RETURNING *', 
+    [nom, zone, telephone, culture, Math.floor(Math.random()*100)]);
     res.json(r.rows[0]);
-});
-
-app.post('/api/marketplace', async (req, res) => {
-    const { id, produit, prix, quantite } = req.body;
-    await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite_stock) VALUES ($1,$2,$3,$4)', [id, produit, prix, quantite]);
-    res.json({success: true});
-});
-
-app.get('/api/marketplace', async (req, res) => {
-    const r = await pool.query('SELECT p.*, a.nom as vendeur, a.telephone FROM produits p JOIN agriculteurs a ON p.agriculteur_id = a.id ORDER BY p.id DESC');
-    res.json(r.rows);
 });
 
 app.post('/api/update-etape', async (req, res) => {
@@ -84,11 +65,21 @@ app.post('/api/finances', async (req, res) => {
     res.json({success: true});
 });
 
+app.post('/api/marketplace', async (req, res) => {
+    const { id, produit, prix, quantite } = req.body;
+    await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite) VALUES ($1,$2,$3,$4)', [id, produit, prix, quantite]);
+    res.json({success: true});
+});
+
+app.get('/api/marketplace', async (req, res) => {
+    const r = await pool.query('SELECT p.*, a.nom as vendeur, a.telephone FROM produits p JOIN agriculteurs a ON p.agriculteur_id = a.id ORDER BY p.id DESC');
+    res.json(r.rows);
+});
+
 app.get('/api/stats-globales', async (req, res) => {
     const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
     const fin = await pool.query('SELECT SUM(montant) FROM finances');
     res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0 });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Serveur Master Lancé`));
+app.listen(5000, '0.0.0.0', () => console.log(`🚀 Serveur Master Lancé`));

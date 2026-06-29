@@ -10,34 +10,43 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// INITIALISATION AUTOMATIQUE DES COMPTES (Module 3.10)
+// INITIALISATION FORCEE (Module 3.10)
 const initDB = async () => {
     try {
+        // 1. Création des tables
         await pool.query(`
             CREATE TABLE IF NOT EXISTS utilisateurs (id SERIAL PRIMARY KEY, nom_utilisateur VARCHAR(50) UNIQUE, mot_de_passe VARCHAR(100), role VARCHAR(20));
             CREATE TABLE IF NOT EXISTS agriculteurs (id SERIAL PRIMARY KEY, nom VARCHAR(100), zone VARCHAR(100), telephone VARCHAR(20), culture VARCHAR(50), solvabilite INTEGER, etape_actuelle VARCHAR(100) DEFAULT '1. Préparation', latitude DECIMAL DEFAULT 12.11, longitude DECIMAL DEFAULT 15.02);
             CREATE TABLE IF NOT EXISTS produits (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, nom_produit VARCHAR(100), prix DECIMAL, quantite_stock INTEGER);
             CREATE TABLE IF NOT EXISTS finances (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, montant DECIMAL, type_t VARCHAR(50), operateur VARCHAR(20));
         `);
-        // On crée les comptes exacts pour tes tests
-        await pool.query(`
-            INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES 
-            ('admin', 'admin123', 'ADMIN'), 
-            ('bank', 'bank123', 'BANQUE'), 
-            ('ong', 'ong123', 'ONG') 
-            ON CONFLICT (nom_utilisateur) DO NOTHING
-        `);
-        console.log("✅ Base de données prête : admin/admin123, bank/bank123, ong/ong123");
-    } catch (err) { console.log(err.message); }
+        
+        // 2. Création ou Mise à jour des comptes (Force l'existence)
+        const accounts = [
+            ['admin', 'admin123', 'ADMIN'],
+            ['bank', 'bank123', 'BANQUE'],
+            ['ong', 'ong123', 'ONG']
+        ];
+        for (let acc of accounts) {
+            await pool.query(
+                "INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES ($1, $2, $3) ON CONFLICT (nom_utilisateur) DO UPDATE SET mot_de_passe = $2",
+                acc
+            );
+        }
+        console.log("✅ COMPTES SECURISÉS : admin, bank, ong PRÊTS");
+    } catch (err) { console.log("Erreur Init:", err.message); }
 };
 initDB();
 
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username.toLowerCase(), password]);
-        if (r.rows.length > 0) res.json({ success: true, user: r.rows[0] });
-        else res.status(401).json({ message: "Invalide" });
+        const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur = $1 AND mot_de_passe = $2", [username.trim().toLowerCase(), password.trim()]);
+        if (r.rows.length > 0) {
+            res.json({ success: true, user: r.rows[0] });
+        } else {
+            res.status(401).json({ message: "Utilisateur non trouvé" });
+        }
     } catch (e) { res.status(500).send(e.message); }
 });
 

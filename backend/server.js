@@ -10,31 +10,35 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// INITIALISATION DB
+// INITIALISATION AUTOMATIQUE DES COMPTES (Module 3.10)
 const initDB = async () => {
     try {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS utilisateurs (id SERIAL PRIMARY KEY, nom_utilisateur VARCHAR(50) UNIQUE, mot_de_passe VARCHAR(100), role VARCHAR(20));
-            CREATE TABLE IF NOT EXISTS agriculteurs (id SERIAL PRIMARY KEY, nom VARCHAR(100), zone VARCHAR(100), telephone VARCHAR(20), culture VARCHAR(100), solvabilite INTEGER, etape_actuelle VARCHAR(100) DEFAULT '1. Préparation des sols', latitude DECIMAL DEFAULT 12.11, longitude DECIMAL DEFAULT 15.02);
+            CREATE TABLE IF NOT EXISTS agriculteurs (id SERIAL PRIMARY KEY, nom VARCHAR(100), zone VARCHAR(100), telephone VARCHAR(20), culture VARCHAR(50), solvabilite INTEGER, etape_actuelle VARCHAR(100) DEFAULT '1. Préparation', latitude DECIMAL DEFAULT 12.11, longitude DECIMAL DEFAULT 15.02);
             CREATE TABLE IF NOT EXISTS produits (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, nom_produit VARCHAR(100), prix DECIMAL, quantite_stock INTEGER);
-            CREATE TABLE IF NOT EXISTS finances (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, montant DECIMAL, type_t VARCHAR(50), operateur VARCHAR(50));
+            CREATE TABLE IF NOT EXISTS finances (id SERIAL PRIMARY KEY, agriculteur_id INTEGER, montant DECIMAL, type_t VARCHAR(50), operateur VARCHAR(20));
         `);
-        await pool.query("INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES ('admin', 'admin123', 'ADMIN'), ('banque', 'bank123', 'BANQUE'), ('ong', 'ong123', 'ONG') ON CONFLICT DO NOTHING");
+        // On crée les comptes exacts pour tes tests
+        await pool.query(`
+            INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, role) VALUES 
+            ('admin', 'admin123', 'ADMIN'), 
+            ('bank', 'bank123', 'BANQUE'), 
+            ('ong', 'ong123', 'ONG') 
+            ON CONFLICT (nom_utilisateur) DO NOTHING
+        `);
+        console.log("✅ Base de données prête : admin/admin123, bank/bank123, ong/ong123");
     } catch (err) { console.log(err.message); }
 };
 initDB();
 
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username, password]);
-    if (r.rows.length > 0) res.json({ success: true, user: r.rows[0] });
-    else res.status(401).json({ message: "Invalide" });
-});
-
-app.get('/api/stats', async (req, res) => {
-    const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
-    const fin = await pool.query('SELECT SUM(montant) FROM finances');
-    res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0 });
+    try {
+        const r = await pool.query("SELECT * FROM utilisateurs WHERE nom_utilisateur=$1 AND mot_de_passe=$2", [username.toLowerCase(), password]);
+        if (r.rows.length > 0) res.json({ success: true, user: r.rows[0] });
+        else res.status(401).json({ message: "Invalide" });
+    } catch (e) { res.status(500).send(e.message); }
 });
 
 app.get('/api/agriculteurs', async (req, res) => {
@@ -42,15 +46,15 @@ app.get('/api/agriculteurs', async (req, res) => {
     res.json(r.rows);
 });
 
-app.post('/api/finances', async (req, res) => {
-    const { agriculteur_id, montant, type, operateur } = req.body;
-    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_t, operateur) VALUES ($1,$2,$3,$4)', [agriculteur_id, montant, type, operateur]);
-    res.json({success: true});
+app.post('/api/agriculteurs', async (req, res) => {
+    const { nom, zone, telephone, culture } = req.body;
+    const r = await pool.query('INSERT INTO agriculteurs (nom, zone, telephone, culture, solvabilite, latitude, longitude) VALUES ($1,$2,$3,$4, 50, 12.11, 15.02) RETURNING *', [nom, zone, telephone, culture]);
+    res.json(r.rows[0]);
 });
 
 app.post('/api/marketplace', async (req, res) => {
-    const { agriculteur_id, produit, prix, quantite } = req.body;
-    await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite_stock) VALUES ($1,$2,$3,$4)', [agriculteur_id, produit, prix, quantite]);
+    const { id, produit, prix, quantite } = req.body;
+    await pool.query('INSERT INTO produits (agriculteur_id, nom_produit, prix, quantite_stock) VALUES ($1,$2,$3,$4)', [id, produit, prix, quantite]);
     res.json({success: true});
 });
 
@@ -63,6 +67,18 @@ app.post('/api/update-etape', async (req, res) => {
     const { id, etape } = req.body;
     await pool.query('UPDATE agriculteurs SET etape_actuelle = $1 WHERE id = $2', [etape, id]);
     res.json({success: true});
+});
+
+app.post('/api/finances', async (req, res) => {
+    const { agriculteur_id, montant, type, operateur } = req.body;
+    await pool.query('INSERT INTO finances (agriculteur_id, montant, type_t, operateur) VALUES ($1,$2,$3,$4)', [agriculteur_id, montant, type, operateur]);
+    res.json({success: true});
+});
+
+app.get('/api/stats-globales', async (req, res) => {
+    const f = await pool.query('SELECT COUNT(*) FROM agriculteurs');
+    const fin = await pool.query('SELECT SUM(montant) FROM finances');
+    res.json({ total_p: f.rows[0].count, total_f: fin.rows[0].sum || 0 });
 });
 
 const PORT = process.env.PORT || 5000;
